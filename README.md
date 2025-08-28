@@ -46,7 +46,8 @@ sudo apt update && sudo apt install -y jq curl coreutils grep sed
 请复制并执行以下命令。它会自动下载脚本，并触发脚本的自我安装程序。首次运行即完成安装。
 
 ```bash
-curl -L [https://raw.githubusercontent.com/byJoey/cfy/main/cfy.sh](https://raw.githubusercontent.com/byJoey/cfy/main/cfy.sh) | sudo bash
+    curl -L [https://raw.githubusercontent.com/byJoey/cfy/main/cfy.sh](https://raw.githubusercontent.com/byJoey/cfy/main/cfy.sh) | sudo bash
+
 ```
 安装成功后，您可以随时在终端的任何位置输入以下命令来启动脚本：
 ```bash
