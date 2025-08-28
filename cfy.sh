@@ -6,28 +6,43 @@ if [ "$0" != "$INSTALL_PATH" ]; then
     echo "正在安装 [cfy 节点优选生成器]..."
 
     if [ "$(id -u)" -ne 0 ]; then
-        echo "错误: 安装需要管理员权限。请使用 'curl ... | sudo bash' 命令来运行。"
+        echo "错误: 安装需要管理员权限。请使用 'curl ... | sudo bash' 或 'sudo bash <(curl ...)' 命令来运行。"
         exit 1
     fi
     
     echo "正在将脚本写入到 $INSTALL_PATH..."
-    if cat /proc/self/fd/0 > "$INSTALL_PATH"; then
-        chmod +x "$INSTALL_PATH"
-        if [ $? -eq 0 ]; then
-            echo "✅ 安装成功! 您现在可以随时随地运行 'cfy' 命令。"
-            echo "---"
-            echo "首次运行..."
-            exec "$INSTALL_PATH"
-        else
-            echo "❌ 赋权失败, 请检查权限。"
+    
+    # 智能判断执行模式
+    if [[ "$(basename "$0")" == "bash" || "$(basename "$0")" == "sh" || "$(basename "$0")" == "-bash" ]]; then
+        # 管道模式: curl ... | bash
+        # 脚本内容在标准输入 (fd/0)
+        if ! cat /proc/self/fd/0 > "$INSTALL_PATH"; then
+            echo "❌ 写入脚本失败 (管道模式)，请重试。"
             exit 1
         fi
     else
-        echo "❌ 写入脚本失败, 请检查 /usr/local/bin 目录是否存在且可写。"
+        # 文件模式: bash cfy.sh 或 bash <(curl ...)
+        # 脚本内容在 $0 所指向的文件路径
+        if ! cp "$0" "$INSTALL_PATH"; then
+            echo "❌ 复制脚本失败 (文件模式)，请重试。"
+            exit 1
+        fi
+    fi
+
+    if [ $? -eq 0 ]; then
+        chmod +x "$INSTALL_PATH"
+        echo "✅ 安装成功! 您现在可以随时随地运行 'cfy' 命令。"
+        echo "---"
+        echo "首次运行..."
+        exec "$INSTALL_PATH"
+    else
+        echo "❌ 安装后赋权失败, 请检查权限。"
         exit 1
     fi
     exit 0
 fi
+
+# --- 主程序从这里开始 ---
 
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
