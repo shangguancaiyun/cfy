@@ -6,31 +6,24 @@ if [ "$0" != "$INSTALL_PATH" ]; then
     echo "正在安装 [cfy 节点优选生成器]..."
 
     if [ "$(id -u)" -ne 0 ]; then
-        echo "安装需要管理员权限, 请输入您的密码..."
-        if ! sudo -v; then
-            echo "密码错误或权限不足, 安装失败。"
-            exit 1
-        fi
-        if ! sudo cp "$0" "$INSTALL_PATH"; then
-            echo "复制脚本失败, 请检查 /usr/local/bin 目录权限。"
-            exit 1
-        fi
-        sudo chmod +x "$INSTALL_PATH"
-    else
-        if ! cp "$0" "$INSTALL_PATH"; then
-            echo "复制脚本失败, 请检查 /usr/local/bin 目录权限。"
-            exit 1
-        fi
-        chmod +x "$INSTALL_PATH"
+        echo "错误: 安装需要管理员权限。请使用 'curl ... | sudo bash' 命令来运行。"
+        exit 1
     fi
-
-    if [ $? -eq 0 ]; then
-        echo "✅ 安装成功! 您现在可以随时随地运行 'cfy' 命令。"
-        echo "---"
-        echo "首次运行..."
-        exec "$INSTALL_PATH"
+    
+    echo "正在将脚本写入到 $INSTALL_PATH..."
+    if cat /proc/self/fd/0 > "$INSTALL_PATH"; then
+        chmod +x "$INSTALL_PATH"
+        if [ $? -eq 0 ]; then
+            echo "✅ 安装成功! 您现在可以随时随地运行 'cfy' 命令。"
+            echo "---"
+            echo "首次运行..."
+            exec "$INSTALL_PATH"
+        else
+            echo "❌ 赋权失败, 请检查权限。"
+            exit 1
+        fi
     else
-        echo "❌ 安装失败, 请检查相关权限和路径问题。"
+        echo "❌ 写入脚本失败, 请检查 /usr/local/bin 目录是否存在且可写。"
         exit 1
     fi
     exit 0
@@ -116,7 +109,7 @@ main() {
             selected_url=${valid_urls[0]}
             echo -e "${YELLOW}检测到只有一个有效节点, 已自动选择: ${valid_ps_names[0]}${NC}"
         else
-            echo -e "${YELLOW}请选择一个节点作为:${NC}"
+            echo -e "${YELLOW}请选择一个节点作为模板:${NC}"
             for i in "${!valid_ps_names[@]}"; do printf "%3d) %s\n" "$((i+1))" "${valid_ps_names[$i]}"; done
             local choice
             while true; do
@@ -127,9 +120,9 @@ main() {
             done
         fi
     else
-        echo -e "${YELLOW}在 $url_file 中未找到有效节点.${NC}"
+        echo -e "${YELLOW}在 $url_file 中未找到有效节点模板.${NC}"
         while true; do
-            read -p "请手动粘贴一个 vmess:// 链接作为: " selected_url
+            read -p "请手动粘贴一个 vmess:// 链接作为模板: " selected_url
             if [[ "$selected_url" != vmess://* ]]; then echo -e "${RED}格式错误, 必须以 vmess:// 开头.${NC}"; continue; fi
             decoded_json=$(echo "${selected_url#"vmess://"}" | base64 -d 2>/dev/null)
             if [ $? -ne 0 ] || [ -z "$decoded_json" ]; then echo -e "${RED}无法解码链接, 请检查链接是否完整有效.${NC}"; continue; fi
@@ -142,11 +135,11 @@ main() {
     local base64_part=${selected_url#"vmess://"}
     local original_json=$(echo "$base64_part" | base64 -d)
     local original_ps=$(echo "$original_json" | jq -r .ps)
-    echo -e "${GREEN}已选择: $original_ps${NC}"
+    echo -e "${GREEN}已选择模板: $original_ps${NC}"
     
     echo -e "${YELLOW}请选择要使用的 IP 地址来源:${NC}"
-    echo "  1) Cloudflare 官方 (本地优选)"
-    echo "  2) 优选 IP (云优选)"
+    echo "  1) Cloudflare 官方 (手动输入数量)"
+    echo "  2) 优选 IP (全自动生成所有)"
     
     local ip_source_choice; local use_optimized_ips=false
     while true; do
