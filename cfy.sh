@@ -124,7 +124,7 @@ main() {
             selected_url=${valid_urls[0]}
             echo -e "${YELLOW}检测到只有一个有效节点, 已自动选择: ${valid_ps_names[0]}${NC}"
         else
-            echo -e "${YELLOW}请选择一个节点作为模板:${NC}"
+            echo -e "${YELLOW}请选择一个节点作为:${NC}"
             for i in "${!valid_ps_names[@]}"; do printf "%3d) %s\n" "$((i+1))" "${valid_ps_names[$i]}"; done
             local choice
             while true; do
@@ -135,9 +135,9 @@ main() {
             done
         fi
     else
-        echo -e "${YELLOW}在 $url_file 中未找到有效节点模板.${NC}"
+        echo -e "${YELLOW}在 $url_file 中未找到有效节点.${NC}"
         while true; do
-            read -p "请手动粘贴一个 vmess:// 链接作为模板: " selected_url
+            read -p "请手动粘贴一个 vmess:// 链接作为: " selected_url
             if [[ "$selected_url" != vmess://* ]]; then echo -e "${RED}格式错误, 必须以 vmess:// 开头.${NC}"; continue; fi
             decoded_json=$(echo "${selected_url#"vmess://"}" | base64 -d 2>/dev/null)
             if [ $? -ne 0 ] || [ -z "$decoded_json" ]; then echo -e "${RED}无法解码链接, 请检查链接是否完整有效.${NC}"; continue; fi
@@ -150,11 +150,11 @@ main() {
     local base64_part=${selected_url#"vmess://"}
     local original_json=$(echo "$base64_part" | base64 -d)
     local original_ps=$(echo "$original_json" | jq -r .ps)
-    echo -e "${GREEN}已选择模板: $original_ps${NC}"
+    echo -e "${GREEN}已选择: $original_ps${NC}"
     
     echo -e "${YELLOW}请选择要使用的 IP 地址来源:${NC}"
-    echo "  1) Cloudflare 官方 (手动输入数量)"
-    echo "  2) 优选 IP (全自动生成所有)"
+    echo "  1) Cloudflare 官方 (手动优选)"
+    echo "  2) 云优选  "
     
     local ip_source_choice; local use_optimized_ips=false
     while true; do
