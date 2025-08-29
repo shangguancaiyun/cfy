@@ -6,14 +6,6 @@
 
 ---
 
-### 联系与支持
-
-* **作者:** byJoey ([GitHub](https://github.com/byJoey))
-* **个人博客:** [joeyblog.net](https://joeyblog.net)
-* **Telegram 交流群:** [点击加入](https://t.me/+ft-zI76oovgwNmRh)
-
----
-
 ## 功能特性
 
 * **一键安装**: 只需一条命令即可完成安装，自动将脚本部署为系统命令 `cfy`。
