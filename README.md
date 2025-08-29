@@ -38,7 +38,7 @@
 
 **在 Debian / Ubuntu 系统中安装:**
 ```bash
-sudo apt update && sudo apt install -y jq curl coreutils grep sed
+apt update && apt install -y jq curl coreutils grep sed sudo
 ```
 
 ## 一键安装与运行
