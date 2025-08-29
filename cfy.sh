@@ -101,9 +101,7 @@ main() {
     echo -e " 节点优选生成器 (cfy)"
     echo -e " (适配老王的4合一sing-box)"
     echo -e " "
-    echo -e " 作者: byJoey (github.com/byJoey)"
-    echo -e " 博客: joeyblog.net"
-    echo -e " TG群: t.me/+ft-zI76oovgwNmRh"
+    echo -e " 作者: zhong yuan
     echo -e "==================================================${NC}"
     echo ""
 
